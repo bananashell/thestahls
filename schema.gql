@@ -1,0 +1,25 @@
+type Guest {
+  rsvp: Boolean!
+  firstName: String!
+  lastName: String!
+  menuType: MenuType
+  allergies: String
+  alcoholFree: Boolean
+  makesMeDance: String
+  transportation: Transportation
+}
+
+type Transportation {
+  fromHotel: Boolean
+  fromWedding: Boolean
+  toHotel: Boolean
+}
+
+enum MenuType {
+  meat
+  vegetarian
+}
+
+type Query {
+  allGuests: [Guest!]
+}

@@ -1,0 +1,10 @@
+# .graphqlrc.yml
+schema:
+  - "./src/server/remoteSchema.graphql"
+documents: "./src/**/*.{gql,graphql,ts,tsx}"
+generates:
+  src/server/sdk.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
