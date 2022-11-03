@@ -8,22 +8,25 @@ import {
 	Validate,
 	ValidationRule,
 } from "react-hook-form";
+import { nameOf } from "utils/nameof";
 import { trpc } from "utils/trpc";
+import { TypeOf } from "zod";
 import { CheckboxInput } from "./forms/CheckboxInput";
 import { RadioGroupInput } from "./forms/RadioGroupInput";
 import { TextInput } from "./forms/TextInput";
 
-type FormValues = Partial<{
-	firstName: string;
-	lastName: string;
-	rsvp: "YES" | "NO";
-	menuType: "MEAT" | "VEGETARIAN";
-	allergies: string;
-	alchoholFree: "YES" | "NO";
-	trip_toWedding: "YES" | "NO";
-	trip_toDinner: "YES" | "NO";
-	trip_toHotel: "YES" | "NO";
-}>;
+type FormValues = Partial<TypeOf<typeof AttendingGuest>> & Partial<TypeOf<typeof AbsenteeGuest>>;
+// type FormValues = Partial<{
+// 	firstName: string;
+// 	lastName: string;
+// 	rsvp: boolean;
+// 	menuType: "MEAT" | "VEGETARIAN";
+// 	allergies: string;
+// 	alchoholFree: "YES" | "NO";
+// 	trip_toWedding: "YES" | "NO";
+// 	trip_toDinner: "YES" | "NO";
+// 	trip_toHotel: "YES" | "NO";
+// }>;
 
 export const Rsvp = () => {
 	const { mutateAsync: createAbsenteeAsync } = trpc.useMutation(["guests.create.absentee"]);
@@ -34,10 +37,6 @@ export const Rsvp = () => {
 	});
 
 	const handleSubmit: SubmitHandler<FormValues> = async (values) => {
-		if (typeof values.rsvp !== "boolean") {
-			throw new Error("rsvp must be set");
-		}
-
 		values.rsvp ? await handleCreateAttendee(values) : await handleCreateAbsentee(values);
 	};
 
@@ -51,27 +50,35 @@ export const Rsvp = () => {
 		await createAttendeeAsync(data);
 	};
 
-	const showMore = formContext.watch().rsvp === "YES";
+	const showMore = formContext.watch().rsvp === true;
 	return (
 		<FormContainer formContext={formContext} handleSubmit={handleSubmit}>
 			<main>
-				<TextInput label="Förnamn" name={"firstName"} register={formContext.register} />
-				<TextInput label="Efternamn" name={"lastName"} register={formContext.register} />
-				<RadioGroupInput
-					name="rsvp"
+				<TextInput
+					label="Förnamn"
+					name={nameOf<FormValues>("firstName")}
 					register={formContext.register}
+				/>
+				<TextInput
+					label="Efternamn"
+					name={nameOf<FormValues>("lastName")}
+					register={formContext.register}
+				/>
+				<RadioGroupInput
+					name={nameOf<FormValues>("rsvp")}
+					control={formContext.control}
 					label="Kommer du?"
 					values={[
-						{ label: "Ja", value: "YES" },
-						{ label: "Nej", value: "NO" },
+						{ label: "Ja", value: true },
+						{ label: "Nej", value: false },
 					]}
 				/>
 
 				{showMore && (
 					<section>
 						<RadioGroupInput
-							name="menuType"
-							register={formContext.register}
+							name={nameOf<FormValues>("menuType")}
+							control={formContext.control}
 							label="Föredragen meny"
 							values={[
 								{ label: "Kött", value: "MEAT" },
@@ -79,32 +86,37 @@ export const Rsvp = () => {
 							]}
 						/>
 						<TextInput
-							name={"allergies"}
+							name={nameOf<FormValues>("allergies")}
 							label={"Eventuella allergier"}
 							register={formContext.register}
 						/>
 						<RadioGroupInput
-							name="alcoholFree"
-							register={formContext.register}
+							name={nameOf<FormValues>("alcoholFree")}
+							control={formContext.control}
 							label="Alkoholfritt till maten?"
 							values={[
-								{ label: "Ja", value: "YES" },
-								{ label: "Nej", value: "NO" },
+								{ label: "Ja", value: true },
+								{ label: "Nej", value: false },
 							]}
 						/>
 						<CheckboxInput
-							name={"trip_toWedding"}
+							name={nameOf<FormValues>("fromHotel")}
 							label={"Från Steam Hotel till vigseln"}
 							register={formContext.register}
 						/>
 						<CheckboxInput
-							name={"trip_toDinner"}
+							name={nameOf<FormValues>("fromWedding")}
 							label={"Från Vigsel till Nybynäs Gård"}
 							register={formContext.register}
 						/>
 						<CheckboxInput
-							name={"trip_toHotel"}
-							label={"Från Nybynär Gård till Steam Hotel"}
+							name={nameOf<FormValues>("fromDinner")}
+							label={"Från Nybynäs Gård till Steam Hotel"}
+							register={formContext.register}
+						/>
+						<TextInput
+							name={nameOf<FormValues>("makesMeDance")}
+							label="Den här får mig att dansa"
 							register={formContext.register}
 						/>
 					</section>

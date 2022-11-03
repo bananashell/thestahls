@@ -1,6 +1,8 @@
 import * as trpc from "@trpc/server";
+import { getDocs, addDoc } from "firebase/firestore/lite";
 import { AbsenteeGuest, AttendingGuest } from "models/guest";
 import { client } from "server/client";
+import { db, guestCollection, listGuests } from "server/fireClient";
 import { z, TypeOf } from "zod";
 
 type GuestBase = {
@@ -19,34 +21,27 @@ export const guests = trpc
 	})
 	.query("list", {
 		async resolve() {
-			const guests = await client.from<Guest>("guests").select("*");
-
-			return guests.data;
+			const snapshot = await getDocs(guestCollection);
+			return snapshot.docs.map((doc) => doc.data() as Guest);
 		},
 	})
 	.mutation("create.absentee", {
 		input: AbsenteeGuest,
 		async resolve({ input }) {
 			console.log("creating absentee", input);
-			const a = await client.from<Guest>("guests").insert(input);
-			if (a.error || a.status < 200 || a.status >= 299) {
-				throw a.error;
-			}
-			const id = a?.data?.at(0)?.id;
-			console.log(`guest created id [${id}]`);
-			return id;
+			const result = await addDoc(guestCollection, input);
+			console.log(`guest created id [${result.id}]`);
+
+			return result.id;
 		},
 	})
 	.mutation("create.attendee", {
 		input: AttendingGuest,
 		async resolve({ input }) {
-			console.log("creating attendee", input);
-			const a = await client.from<Guest>("guests").insert(input);
-			if (a.error || a.status < 200 || a.status >= 299) {
-				throw a.error;
-			}
-			const id = a?.data?.at(0)?.id;
-			console.log(`guest created id [${id}]`);
-			return id;
+			console.log("creating absentee", input);
+			const result = await addDoc(guestCollection, input);
+			console.log(`guest created id [${result.id}]`);
+
+			return result.id;
 		},
 	});
