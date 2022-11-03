@@ -8,7 +8,7 @@ import {
 	Validate,
 	ValidationRule,
 } from "react-hook-form";
-import { nameOf } from "utils/nameof";
+import { nameOf } from "utils/nameOf";
 import { trpc } from "utils/trpc";
 import { TypeOf } from "zod";
 import { CheckboxInput } from "./forms/CheckboxInput";
@@ -16,17 +16,6 @@ import { RadioGroupInput } from "./forms/RadioGroupInput";
 import { TextInput } from "./forms/TextInput";
 
 type FormValues = Partial<TypeOf<typeof AttendingGuest>> & Partial<TypeOf<typeof AbsenteeGuest>>;
-// type FormValues = Partial<{
-// 	firstName: string;
-// 	lastName: string;
-// 	rsvp: boolean;
-// 	menuType: "MEAT" | "VEGETARIAN";
-// 	allergies: string;
-// 	alchoholFree: "YES" | "NO";
-// 	trip_toWedding: "YES" | "NO";
-// 	trip_toDinner: "YES" | "NO";
-// 	trip_toHotel: "YES" | "NO";
-// }>;
 
 export const Rsvp = () => {
 	const { mutateAsync: createAbsenteeAsync } = trpc.useMutation(["guests.create.absentee"]);
