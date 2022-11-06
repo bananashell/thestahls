@@ -6,10 +6,13 @@ export const AbsenteeGuest = z.object({
 	firstName: z.string(),
 	lastName: z.string(),
 	rsvp: z.literal(false),
+	message: z.string().optional(),
 });
 
 export const AttendingGuest = AbsenteeGuest.merge(
 	z.object({
+		phone: z.string(),
+		email: z.string(),
 		menuType: z.enum(MenuType),
 		allergies: z.string(),
 		alcoholFree: z.boolean(),

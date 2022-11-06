@@ -33,10 +33,7 @@ export function RadioGroupInput({ name, values, label, control }: Props) {
 									checked={currentValue === value}
 									onChange={() => onChange(value)}
 								/>
-								<label
-									htmlFor={id}
-									className="block ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-								>
+								<label htmlFor={id} className="block ml-2 text-sm font-medium">
 									{label}
 								</label>
 							</div>
