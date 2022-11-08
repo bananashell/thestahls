@@ -10,7 +10,7 @@ type Props = {
 	options?: RegisterOptions<any, string>;
 };
 
-export function TextInput({ name, type, label, placeholder, options }: Props) {
+export function TextInput({ name, type, label, placeholder, options, register }: Props) {
 	options = options ?? {};
 
 	return (
@@ -18,10 +18,9 @@ export function TextInput({ name, type, label, placeholder, options }: Props) {
 			<label htmlFor={name}>{label}</label>
 			<input
 				type={type ?? "text"}
-				id={name}
 				className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
 				placeholder={placeholder}
-				required
+				{...register(name, options)}
 			/>
 		</div>
 	);
