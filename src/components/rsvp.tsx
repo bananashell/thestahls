@@ -8,6 +8,7 @@ import { AttendanceInput } from "./forms/AttendanceInput";
 import { CheckboxInput } from "./forms/CheckboxInput";
 import { RadioGroupInput } from "./forms/RadioGroupInput";
 import { TextInput } from "./forms/TextInput";
+import { ThanksForResponse } from "./ThanksForResponse";
 
 type FormValues = Partial<TypeOf<typeof AttendingGuest>> & Partial<TypeOf<typeof AbsenteeGuest>>;
 
@@ -20,7 +21,9 @@ export const Rsvp = () => {
 	});
 
 	const handleSubmit: SubmitHandler<FormValues> = async (values) => {
-		values.rsvp ? await handleCreateAttendee(values) : await handleCreateAbsentee(values);
+		try {
+			values.rsvp ? await handleCreateAttendee(values) : await handleCreateAbsentee(values);
+		} catch {}
 	};
 
 	const handleCreateAbsentee = async (values: FormValues) => {
@@ -33,8 +36,13 @@ export const Rsvp = () => {
 		await createAttendeeAsync(data);
 	};
 
-	const showMore = formContext.watch().rsvp === true;
+	const willCome = formContext.watch().rsvp === true;
 	const hasSetRsvp = typeof formContext.watch().rsvp === "boolean";
+
+	if (formContext.formState.isSubmitted) {
+		return <ThanksForResponse rsvp={willCome} reset={() => formContext.reset()} />;
+	}
+
 	return (
 		<>
 			<h1 className="mb-8 text-lg text-center">
@@ -75,7 +83,7 @@ export const Rsvp = () => {
 							/>
 						</section>
 
-						{showMore && (
+						{willCome && (
 							<>
 								<section className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
 									<TextInput
@@ -103,6 +111,7 @@ export const Rsvp = () => {
 									name={nameOf<FormValues>("allergies")}
 									label={"Har du några allergier?"}
 									register={formContext.register}
+									options={{ required: false }}
 								/>
 								<RadioGroupInput
 									name={nameOf<FormValues>("alcoholFree")}
@@ -135,6 +144,7 @@ export const Rsvp = () => {
 									name={nameOf<FormValues>("makesMeDance")}
 									label="Den här låten får mig att dansa"
 									register={formContext.register}
+									options={{ required: false }}
 									placeholder=""
 								/>
 							</>
@@ -143,6 +153,7 @@ export const Rsvp = () => {
 							name={nameOf<FormValues>("message")}
 							label="Vill du lämna ett meddelande eller kommentar till bröllopsparet?"
 							register={formContext.register}
+							options={{ required: false }}
 							placeholder=""
 						/>
 						<footer className="flex justify-center py-4">

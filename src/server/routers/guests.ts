@@ -9,16 +9,10 @@ type GuestBase = {
 	id: number;
 	created_at: string;
 };
-type Guest = GuestBase & (TypeOf<typeof AbsenteeGuest> | TypeOf<typeof AttendingGuest>);
+export type Guest = GuestBase & (TypeOf<typeof AbsenteeGuest> | TypeOf<typeof AttendingGuest>);
 
 export const guests = trpc
 	.router()
-	.query("single", {
-		resolve() {
-			console.log("Ping");
-			return "hello";
-		},
-	})
 	.query("list", {
 		async resolve() {
 			const snapshot = await getDocs(guestCollection);

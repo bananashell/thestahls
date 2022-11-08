@@ -1,23 +1,182 @@
 import type { NextPage } from "next";
 import { trpc } from "utils/trpc";
+import DataTable from "react-data-table-component";
+import { AttendingGuest } from "models/guest";
+import { useState, useMemo } from "react";
+import { useDebounce } from "hooks/useDebounce";
+import { Guest } from "server/routers/guests";
 
 const Gaster: NextPage = () => {
+	const [filter, setFilter] = useState("");
 	const { data } = trpc.useQuery(["guests.list"]);
+	const filterValue = useDebounce(filter.trim(), 300);
+
+	const filteredData = useMemo(
+		() => data?.filter((x) => contains(`${x.firstName} ${x.lastName}`, filterValue)) ?? [],
+		[filterValue, data],
+	);
 
 	return (
 		<section className="bg-white">
-			<h1>Gäster</h1>
+			<header className="mb-8">
+				<h1 className="flex gap-8 text-2xl">
+					Gäster
+					<small>
+						Kommer:
+						{data?.filter((x) => x.rsvp === true).length ?? 0}
+					</small>
+					<small>Kommer inte: {data?.filter((x) => x.rsvp === false).length ?? 0}</small>
+				</h1>
+			</header>
+			<section>
+				<label className="flex items-center gap-2">
+					<span>Filter:</span>
+					<input
+						type="search"
+						onChange={(e) => setFilter(e.currentTarget.value)}
+						className="px-4 py-2 border w-44"
+					/>
+				</label>
+			</section>
 			<article>
-				{data?.map((g, i) => (
-					<div key={i}>
-						<span>
-							{g.firstName} {g.lastName} {g.rsvp ? "kommer" : "kommer inte"}
-						</span>
-					</div>
-				))}
+				<DataTable
+					responsive
+					striped
+					defaultSortFieldId={"firstName"}
+					defaultSortAsc={false}
+					columns={[
+						{
+							id: "firstName",
+							name: "Förnamn",
+							sortField: "firstName",
+							selector: (row) => row.firstName,
+							sortable: true,
+							sortFunction: caseInsensitiveSort("firstName"),
+						},
+						{
+							name: "Efternamn",
+							selector: (row) => row.lastName,
+							sortable: true,
+							sortFunction: caseInsensitiveSort("lastName"),
+						},
+						{
+							name: "OSA",
+							selector: (row) => (row.rsvp ? "Kommer" : "Kommer inte"),
+							sortable: true,
+						},
+						{
+							name: "Meny",
+							selector: (row) => {
+								let attending = AttendingGuest.safeParse(row);
+								return attending.success ? attending.data.menuType : "-";
+							},
+							sortable: true,
+						},
+						{
+							name: "Alkoholfritt",
+							selector: (row) => {
+								let attending = AttendingGuest.safeParse(row);
+								return attending.success
+									? attending.data.alcoholFree
+										? "Ja"
+										: "Nej"
+									: "-";
+							},
+							sortable: true,
+						},
+						{
+							name: "Email",
+							selector: (row) => {
+								let attending = AttendingGuest.safeParse(row);
+								return attending.success ? attending.data.email : "-";
+							},
+							sortable: true,
+						},
+						{
+							name: "Telefon",
+							selector: (row) => {
+								let attending = AttendingGuest.safeParse(row);
+								return attending.success ? attending.data.phone : "-";
+							},
+							sortable: true,
+						},
+						{
+							name: "Från steam",
+							selector: (row) => {
+								let attending = AttendingGuest.safeParse(row);
+								return attending.success
+									? attending.data.fromHotel
+										? "Ja"
+										: "Nej"
+									: "-";
+							},
+							sortable: true,
+						},
+						{
+							name: "Från vigseln",
+							selector: (row) => {
+								let attending = AttendingGuest.safeParse(row);
+								return attending.success
+									? attending.data.fromWedding
+										? "Ja"
+										: "Nej"
+									: "-";
+							},
+							sortable: true,
+						},
+						{
+							name: "Från middagen",
+							selector: (row) => {
+								let attending = AttendingGuest.safeParse(row);
+								return attending.success
+									? attending.data.fromDinner
+										? "Ja"
+										: "Nej"
+									: "-";
+							},
+							sortable: true,
+						},
+						{
+							name: "Får mig att dansa",
+							selector: (row) => {
+								let attending = AttendingGuest.safeParse(row);
+								return attending.success ? attending.data.makesMeDance ?? "-" : "-";
+							},
+							sortable: true,
+						},
+						{
+							name: "Meddelande",
+							selector: (row) => {
+								let attending = AttendingGuest.safeParse(row);
+								return attending.success ? attending.data.message ?? "" : "-";
+							},
+							sortable: true,
+						},
+					]}
+					data={filteredData}
+				/>
 			</article>
 		</section>
 	);
 };
 
 export default Gaster;
+
+const contains = (a: string, b: string) => a.toLowerCase().indexOf(b.toLowerCase()) >= 0;
+const caseInsensitiveSort = (property: keyof Guest) => (rowA: Guest, rowB: Guest) => {
+	const propA = (rowA[property] as string) ?? "";
+	const propB = (rowB[property] as string) ?? "";
+
+	const a = propA.toLowerCase();
+	const b = propB.toLowerCase();
+
+	if (a > b) {
+		return 1;
+	}
+
+	if (b > a) {
+		return -1;
+	}
+
+	return 0;
+};
