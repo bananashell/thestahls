@@ -21,9 +21,7 @@ export const Rsvp = () => {
 	});
 
 	const handleSubmit: SubmitHandler<FormValues> = async (values) => {
-		try {
-			values.rsvp ? await handleCreateAttendee(values) : await handleCreateAbsentee(values);
-		} catch {}
+		values.rsvp ? await handleCreateAttendee(values) : await handleCreateAbsentee(values);
 	};
 
 	const handleCreateAbsentee = async (values: FormValues) => {
