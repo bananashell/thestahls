@@ -13,31 +13,65 @@ import { ThanksForResponse } from "./ThanksForResponse";
 type FormValues = Partial<TypeOf<typeof AttendingGuest>> & Partial<TypeOf<typeof AbsenteeGuest>>;
 
 export const Rsvp = () => {
-	const { mutateAsync: createAbsenteeAsync } = trpc.useMutation(["guests.create.absentee"]);
-	const { mutateAsync: createAttendeeAsync } = trpc.useMutation(["guests.create.attendee"]);
+	const {
+		mutateAsync: createAbsenteeAsync,
+		isSuccess: isSuccessAbsentee,
+		isError: isErrorAbsentee,
+	} = trpc.useMutation(["guests.create.absentee"]);
+	const {
+		mutateAsync: createAttendeeAsync,
+		isSuccess: isSuccessAttendee,
+		isError: isErrorAttendee,
+	} = trpc.useMutation(["guests.create.attendee"]);
 
 	const formContext = useForm<FormValues>({
 		mode: "onChange",
 	});
 
 	const handleSubmit: SubmitHandler<FormValues> = async (values) => {
-		values.rsvp ? await handleCreateAttendee(values) : await handleCreateAbsentee(values);
+		try {
+			values.rsvp ? await handleCreateAttendee(values) : await handleCreateAbsentee(values);
+		} catch (e) {
+			console.error(e);
+			return false;
+		}
 	};
 
 	const handleCreateAbsentee = async (values: FormValues) => {
-		const data = AbsenteeGuest.parse(values);
-		await createAbsenteeAsync(data);
+		const data = AbsenteeGuest.safeParse(values);
+		if (!data.success) {
+			console.table(data.error);
+			Object.entries(data.error.formErrors.fieldErrors).forEach(([name, message]) => {
+				formContext.setError(name as keyof TypeOf<typeof AbsenteeGuest>, {
+					message: Array.isArray(message) ? message[0] : message,
+				});
+			});
+
+			return;
+		}
+
+		await createAbsenteeAsync(data.data);
 	};
 
 	const handleCreateAttendee = async (values: FormValues) => {
-		const data = AttendingGuest.parse(values);
-		await createAttendeeAsync(data);
+		const data = AttendingGuest.safeParse(values);
+		if (!data.success) {
+			Object.entries(data.error.formErrors.fieldErrors).forEach(([name, message]) => {
+				formContext.setError(name as keyof TypeOf<typeof AttendingGuest>, {
+					message: Array.isArray(message) ? message[0] : message,
+				});
+			});
+
+			return;
+		}
+
+		await createAttendeeAsync(data.data);
 	};
 
 	const willCome = formContext.watch().rsvp === true;
 	const hasSetRsvp = typeof formContext.watch().rsvp === "boolean";
 
-	if (formContext.formState.isSubmitted) {
+	if (isSuccessAbsentee || isSuccessAttendee) {
 		return <ThanksForResponse rsvp={willCome} reset={() => formContext.reset()} />;
 	}
 
@@ -103,13 +137,21 @@ export const Rsvp = () => {
 									values={[
 										{ label: "Kött, tack", value: "MEAT" },
 										{ label: "Vegetariskt, gärna", value: "VEGETARIAN" },
+										{ label: "Veganskt, gladeligen", value: "VEGAN" },
 									]}
+									rules={
+										{
+											// validate: {
+											// 	required: (val) =>
+											// 		!val ? "Måste välja meny" : undefined,
+											// },
+										}
+									}
 								/>
 								<TextInput
 									name={nameOf<FormValues>("allergies")}
 									label={"Har du några allergier?"}
 									register={formContext.register}
-									options={{ required: false }}
 								/>
 								<RadioGroupInput
 									name={nameOf<FormValues>("alcoholFree")}
@@ -119,6 +161,14 @@ export const Rsvp = () => {
 										{ label: "Ja", value: true },
 										{ label: "Nej", value: false },
 									]}
+									rules={
+										{
+											// validate: {
+											// 	required: (val) =>
+											// 		val == null ? "Måste välja dryck" : undefined,
+											// },
+										}
+									}
 								/>
 								<section className="flex flex-col gap-2">
 									<span>Behöver du transport under dagen?</span>
@@ -126,17 +176,60 @@ export const Rsvp = () => {
 										name={nameOf<FormValues>("fromHotel")}
 										label={"Från Steam Hotel till vigseln"}
 										register={formContext.register}
+										options={{
+											deps: [
+												"fromHotel",
+												"fromWedding",
+												"fromDinner",
+												"noTransportNeeded",
+											],
+										}}
 									/>
 									<CheckboxInput
 										name={nameOf<FormValues>("fromWedding")}
 										label={"Från vigseln till Nybynäs Gård"}
 										register={formContext.register}
+										options={{
+											deps: [
+												"fromHotel",
+												"fromWedding",
+												"fromDinner",
+												"noTransportNeeded",
+											],
+										}}
 									/>
 									<CheckboxInput
 										name={nameOf<FormValues>("fromDinner")}
 										label={"Från Nybynäs Gård till Steam Hotel"}
 										register={formContext.register}
+										options={{
+											deps: [
+												"fromHotel",
+												"fromWedding",
+												"fromDinner",
+												"noTransportNeeded",
+											],
+										}}
 									/>
+									<CheckboxInput
+										name={nameOf<FormValues>("noTransportNeeded")}
+										label={"Behöver ingen transport"}
+										register={formContext.register}
+										options={{
+											deps: [
+												"fromHotel",
+												"fromWedding",
+												"fromDinner",
+												"noTransportNeeded",
+											],
+										}}
+									/>
+									<span className="text-sm text-red-500">
+										{formContext.formState.errors.fromHotel?.message ||
+											formContext.formState.errors.fromWedding?.message ||
+											formContext.formState.errors.fromDinner?.message ||
+											formContext.formState.errors.noTransportNeeded?.message}
+									</span>
 								</section>
 								<TextInput
 									name={nameOf<FormValues>("makesMeDance")}
@@ -155,6 +248,7 @@ export const Rsvp = () => {
 							placeholder=""
 						/>
 						<footer className="flex justify-center py-4">
+							{isErrorAbsentee || (isErrorAbsentee && <>Error</>)}
 							<button
 								type="submit"
 								disabled={

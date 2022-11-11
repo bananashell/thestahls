@@ -1,5 +1,5 @@
 import { DetailedHTMLProps, InputHTMLAttributes } from "react";
-import { FieldValues, RegisterOptions, UseFormRegister } from "react-hook-form";
+import { FieldValues, RegisterOptions, useFormContext, UseFormRegister } from "react-hook-form";
 
 type Props = {
 	name: string;
@@ -12,9 +12,9 @@ type Props = {
 
 export function TextInput({ name, type, label, placeholder, options, register }: Props) {
 	options = options ?? {};
-
+	const formContext = useFormContext();
 	return (
-		<div className="relative z-0 w-full group">
+		<div className="relative z-0 w-full max-w-2xl group">
 			<label htmlFor={name}>{label}</label>
 			<input
 				type={type ?? "text"}
@@ -22,6 +22,9 @@ export function TextInput({ name, type, label, placeholder, options, register }:
 				placeholder={placeholder}
 				{...register(name, options)}
 			/>
+			<span className="text-sm text-red-500">
+				{formContext.getFieldState(name).error?.message}
+			</span>
 		</div>
 	);
 }
