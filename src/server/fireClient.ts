@@ -18,6 +18,7 @@ export const guestCollection = collection(db, "guests");
 
 export async function listGuests() {
 	const col = collection(db, "guests");
+
 	const snapshot = await getDocs(col);
 	const guestList = snapshot.docs.map((doc) => doc.data());
 

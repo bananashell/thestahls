@@ -5,6 +5,7 @@ import {
 	RegisterOptions,
 	UseFormRegister,
 } from "react-hook-form";
+import { ComponentProps } from "react";
 
 type Props = {
 	name: string;
@@ -39,6 +40,9 @@ export function RadioGroupInput({ name, values, label, control }: Props) {
 							</div>
 						);
 					})}
+					<span className="text-sm text-red-500">
+						{control.getFieldState(name).error?.message}
+					</span>
 				</div>
 			)}
 		/>
