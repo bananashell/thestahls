@@ -19,14 +19,29 @@ const Gaster: NextPage = () => {
 	return (
 		<section className="bg-white">
 			<header className="mb-8">
-				<h1 className="flex gap-8 text-2xl">
-					Gäster
-					<small>
+				<h1 className="flex gap-8 text-2xl">Gäster</h1>
+				<ol>
+					<li>
 						Kommer:
 						{data?.filter((x) => x.rsvp === true).length ?? 0}
-					</small>
-					<small>Kommer inte: {data?.filter((x) => x.rsvp === false).length ?? 0}</small>
-				</h1>
+					</li>
+					<li>Kommer inte: {data?.filter((x) => x.rsvp === false).length ?? 0}</li>
+				</ol>
+				<ol>
+					<li>
+						Kött:{" "}
+						{data?.filter((x) => x.rsvp === true && x.menuType === "MEAT").length ?? 0}
+					</li>
+					<li>
+						Vegetariskt:{" "}
+						{data?.filter((x) => x.rsvp === true && x.menuType === "VEGETARIAN")
+							.length ?? 0}
+					</li>
+					<li>
+						Veganskt:{" "}
+						{data?.filter((x) => x.rsvp === true && x.menuType === "VEGAN").length ?? 0}
+					</li>
+				</ol>
 			</header>
 			<section>
 				<label className="flex items-center gap-2">
