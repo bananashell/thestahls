@@ -17,11 +17,13 @@ export const Rsvp = () => {
 		mutateAsync: createAbsenteeAsync,
 		isSuccess: isSuccessAbsentee,
 		isError: isErrorAbsentee,
+		reset: resetAbsentee,
 	} = trpc.useMutation(["guests.create.absentee"]);
 	const {
 		mutateAsync: createAttendeeAsync,
 		isSuccess: isSuccessAttendee,
 		isError: isErrorAttendee,
+		reset: resetAttendee,
 	} = trpc.useMutation(["guests.create.attendee"]);
 
 	const formContext = useForm<FormValues>({
@@ -72,7 +74,16 @@ export const Rsvp = () => {
 	const hasSetRsvp = typeof formContext.watch().rsvp === "boolean";
 
 	if (isSuccessAbsentee || isSuccessAttendee) {
-		return <ThanksForResponse rsvp={willCome} reset={() => formContext.reset()} />;
+		return (
+			<ThanksForResponse
+				rsvp={willCome}
+				reset={() => {
+					formContext.reset();
+					resetAbsentee();
+					resetAttendee();
+				}}
+			/>
+		);
 	}
 
 	return (
@@ -139,14 +150,6 @@ export const Rsvp = () => {
 										{ label: "Vegetariskt, gärna", value: "VEGETARIAN" },
 										{ label: "Veganskt, gladeligen", value: "VEGAN" },
 									]}
-									rules={
-										{
-											// validate: {
-											// 	required: (val) =>
-											// 		!val ? "Måste välja meny" : undefined,
-											// },
-										}
-									}
 								/>
 								<TextInput
 									name={nameOf<FormValues>("allergies")}
@@ -161,14 +164,6 @@ export const Rsvp = () => {
 										{ label: "Ja", value: true },
 										{ label: "Nej", value: false },
 									]}
-									rules={
-										{
-											// validate: {
-											// 	required: (val) =>
-											// 		val == null ? "Måste välja dryck" : undefined,
-											// },
-										}
-									}
 								/>
 								<section className="flex flex-col gap-2">
 									<span>Behöver du transport under dagen?</span>

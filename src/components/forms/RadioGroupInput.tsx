@@ -12,15 +12,13 @@ type Props = {
 	label: string;
 	values: { label: string; value: boolean | string | number }[];
 	control: Control<FieldValues>;
-	rules: ComponentProps<typeof Controller>["rules"];
 };
 
-export function RadioGroupInput({ name, values, label, control, rules }: Props) {
+export function RadioGroupInput({ name, values, label, control }: Props) {
 	return (
 		<Controller
 			control={control}
 			name={name}
-			rules={rules}
 			render={({ field: { onChange, value: currentValue, ref } }) => (
 				<div className="flex flex-col gap-2">
 					<span>{label}</span>
