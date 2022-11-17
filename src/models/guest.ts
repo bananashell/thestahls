@@ -25,8 +25,7 @@ export const AttendingGuest = AbsenteeGuest.merge(
 	}),
 )
 	.refine(
-		(data) =>
-			data.noTransportNeeded && !(data.fromDinner || data.fromHotel || data.fromWedding),
+		(data) => data.noTransportNeeded != (data.fromDinner || data.fromHotel || data.fromWedding),
 		{
 			message:
 				"Du måste välja 'Behöver ingen transport' eller transport från någon av händelserna",
