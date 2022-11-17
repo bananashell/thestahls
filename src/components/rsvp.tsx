@@ -238,12 +238,13 @@ export const Rsvp = () => {
 						<TextInput
 							name={nameOf<FormValues>("message")}
 							label="Vill du lämna ett meddelande eller kommentar till bröllopsparet?"
+							subLabel="Exempelvis om du kommer amma under middagen"
 							register={formContext.register}
 							options={{ required: false }}
 							placeholder=""
 						/>
 						<footer className="flex justify-center py-4">
-							{isErrorAbsentee || (isErrorAbsentee && <>Error</>)}
+							{(isErrorAbsentee || isErrorAbsentee) && <>Error</>}
 							<button
 								type="submit"
 								disabled={

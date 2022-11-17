@@ -4,18 +4,23 @@ import { FieldValues, RegisterOptions, useFormContext, UseFormRegister } from "r
 type Props = {
 	name: string;
 	label: string;
+	subLabel?: string;
 	placeholder?: string;
 	register: UseFormRegister<FieldValues>;
 	type?: DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>["type"];
 	options?: RegisterOptions<any, string>;
 };
 
-export function TextInput({ name, type, label, placeholder, options, register }: Props) {
+export function TextInput({ name, type, label, subLabel, placeholder, options, register }: Props) {
 	options = options ?? {};
 	const formContext = useFormContext();
 	return (
 		<div className="relative z-0 w-full max-w-2xl group">
-			<label htmlFor={name}>{label}</label>
+			<label htmlFor={name}>
+				{label}
+				<div className="text-sm italic">{subLabel}</div>
+			</label>
+
 			<input
 				type={type ?? "text"}
 				className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
