@@ -88,6 +88,18 @@ const Gaster: NextPage = () => {
 							sortable: true,
 						},
 						{
+							name: "Allergier",
+							selector: (row) => {
+								let attending = AttendingGuest.safeParse(row);
+								return attending.success
+									? attending.data.hasAllergies
+										? `Ja - ${attending.data.allergies}`
+										: "Nej"
+									: "-";
+							},
+							sortable: true,
+						},
+						{
 							name: "Alkoholfritt",
 							selector: (row) => {
 								let attending = AttendingGuest.safeParse(row);
