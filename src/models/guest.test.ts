@@ -16,6 +16,7 @@ describe("Verify model validation", () => {
 				menuType: "MEAT",
 				phone: "0711233",
 				rsvp: true,
+				hasAllergies: false,
 				allergies: "",
 				makesMeDance: "",
 				message: "",
@@ -36,6 +37,7 @@ describe("Verify model validation", () => {
 				menuType: "MEAT",
 				phone: "0711233",
 				rsvp: true,
+				hasAllergies: false,
 				allergies: "",
 				makesMeDance: "",
 				message: "",
@@ -56,6 +58,7 @@ describe("Verify model validation", () => {
 				menuType: "MEAT",
 				phone: "0711233",
 				rsvp: true,
+				hasAllergies: false,
 				allergies: "",
 				makesMeDance: "",
 				message: "",
@@ -77,6 +80,7 @@ describe("Verify model validation", () => {
 				menuType: "MEAT",
 				phone: "0711233",
 				rsvp: true,
+				hasAllergies: false,
 				allergies: "",
 				makesMeDance: "",
 				message: "",
@@ -103,6 +107,7 @@ describe("Verify model validation", () => {
 				menuType: "MEAT",
 				phone: "0711233",
 				rsvp: true,
+				hasAllergies: false,
 				allergies: "",
 				makesMeDance: "",
 				message: "",
@@ -114,6 +119,79 @@ describe("Verify model validation", () => {
 			expect(
 				output.success == false && output.error.formErrors.fieldErrors.lastName,
 			).toContain("Obligatorisk");
+		});
+
+		it("Fails when has allergies but no allergy info", () => {
+			let data: TypeOf<typeof AttendingGuest> = {
+				alcoholFree: true,
+				email: "asd@asd.se",
+				firstName: "First name",
+				lastName: "Last name",
+				fromDinner: true,
+				fromHotel: true,
+				fromWedding: true,
+				noTransportNeeded: false,
+				menuType: "MEAT",
+				phone: "0711233",
+				rsvp: true,
+				hasAllergies: true,
+				allergies: "",
+				makesMeDance: "",
+				message: "",
+			};
+
+			let output = AttendingGuest.safeParse(data);
+			expect(output.success).toBeFalsy();
+			expect(output.success == false && output.error.errors.length).toBe(1);
+			expect(
+				output.success == false && output.error.formErrors.fieldErrors.allergies,
+			).toContain("Du måste fylla i vilka allergier du har");
+		});
+
+		it("Succeeds when has allergies and has allergy info", () => {
+			let data: TypeOf<typeof AttendingGuest> = {
+				alcoholFree: true,
+				email: "asd@asd.se",
+				firstName: "First name",
+				lastName: "Last name",
+				fromDinner: true,
+				fromHotel: true,
+				fromWedding: true,
+				noTransportNeeded: false,
+				menuType: "MEAT",
+				phone: "0711233",
+				rsvp: true,
+				hasAllergies: true,
+				allergies: "Skaldjur",
+				makesMeDance: "",
+				message: "",
+			};
+
+			let output = AttendingGuest.safeParse(data);
+			expect(output.success).toBeTruthy();
+		});
+
+		it("Succeeds when doesnt have allergies", () => {
+			let data: TypeOf<typeof AttendingGuest> = {
+				alcoholFree: true,
+				email: "asd@asd.se",
+				firstName: "First name",
+				lastName: "Last name",
+				fromDinner: true,
+				fromHotel: true,
+				fromWedding: true,
+				noTransportNeeded: false,
+				menuType: "MEAT",
+				phone: "0711233",
+				rsvp: true,
+				hasAllergies: false,
+				allergies: "",
+				makesMeDance: "",
+				message: "",
+			};
+
+			let output = AttendingGuest.safeParse(data);
+			expect(output.success).toBeTruthy();
 		});
 	});
 });

@@ -151,11 +151,24 @@ export const Rsvp = () => {
 										{ label: "Veganskt, gladeligen", value: "VEGAN" },
 									]}
 								/>
-								<TextInput
-									name={nameOf<FormValues>("allergies")}
-									label={"Har du några allergier?"}
-									register={formContext.register}
+								<RadioGroupInput
+									name={nameOf<FormValues>("hasAllergies")}
+									control={formContext.control}
+									label="Har du några allergier?"
+									values={[
+										{ label: "Ja", value: true },
+										{ label: "Nej", value: false },
+									]}
 								/>
+								{formContext.watch().hasAllergies && (
+									<div className="-mt-8">
+										<TextInput
+											name={nameOf<FormValues>("allergies")}
+											label={"Vad är du allergisk mot?"}
+											register={formContext.register}
+										/>
+									</div>
+								)}
 								<RadioGroupInput
 									name={nameOf<FormValues>("alcoholFree")}
 									control={formContext.control}
@@ -238,7 +251,11 @@ export const Rsvp = () => {
 						<TextInput
 							name={nameOf<FormValues>("message")}
 							label="Vill du lämna ett meddelande eller kommentar till bröllopsparet?"
-							subLabel="Exempelvis om du kommer amma under middagen"
+							subLabel={
+								formContext.watch().rsvp
+									? "Exempelvis om du kommer amma under middagen"
+									: undefined
+							}
 							register={formContext.register}
 							options={{ required: false }}
 							placeholder=""

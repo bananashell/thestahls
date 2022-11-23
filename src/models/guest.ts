@@ -14,6 +14,7 @@ export const AttendingGuest = AbsenteeGuest.merge(
 		phone: z.string({ required_error: "Obligatorisk" }).trim().min(1, "Obligatorisk"),
 		email: z.string({ required_error: "Obligatorisk" }).trim().min(1, "Obligatorisk"),
 		menuType: z.enum(MenuType),
+		hasAllergies: z.boolean(),
 		allergies: z.string().optional(),
 		alcoholFree: z.boolean(),
 		fromHotel: z.boolean(),
@@ -24,6 +25,15 @@ export const AttendingGuest = AbsenteeGuest.merge(
 		rsvp: z.literal(true),
 	}),
 )
+	.refine(
+		(data) =>
+			(data.hasAllergies && data.allergies && data.allergies.trim().length > 0) ||
+			data.hasAllergies === false,
+		{
+			message: "Du måste fylla i vilka allergier du har",
+			path: ["allergies"],
+		},
+	)
 	.refine(
 		(data) => data.noTransportNeeded != (data.fromDinner || data.fromHotel || data.fromWedding),
 		{
