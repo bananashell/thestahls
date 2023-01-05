@@ -5,7 +5,7 @@ import { AttendingGuest } from "models/guest";
 import { useState, useMemo } from "react";
 import { useDebounce } from "hooks/useDebounce";
 import { Guest } from "server/routers/guests";
-
+import { parseJSON, format } from "date-fns";
 const Gaster: NextPage = () => {
 	const [filter, setFilter] = useState("");
 	const { data } = trpc.useQuery(["guests.list"]);
@@ -53,11 +53,10 @@ const Gaster: NextPage = () => {
 					/>
 				</label>
 			</section>
-			<article>
+			<article className="w-[3000px]">
 				<DataTable
-					responsive
 					striped
-					defaultSortFieldId={"firstName"}
+					defaultSortFieldId={"created_at"}
 					defaultSortAsc={false}
 					columns={[
 						{
@@ -97,6 +96,7 @@ const Gaster: NextPage = () => {
 										: "Nej"
 									: "-";
 							},
+							wrap: true,
 							sortable: true,
 						},
 						{
@@ -117,6 +117,7 @@ const Gaster: NextPage = () => {
 								let attending = AttendingGuest.safeParse(row);
 								return attending.success ? attending.data.email : "-";
 							},
+							wrap: true,
 							sortable: true,
 						},
 						{
@@ -169,6 +170,8 @@ const Gaster: NextPage = () => {
 								let attending = AttendingGuest.safeParse(row);
 								return attending.success ? attending.data.makesMeDance ?? "-" : "-";
 							},
+							grow: 5,
+							wrap: true,
 							sortable: true,
 						},
 						{
@@ -176,6 +179,17 @@ const Gaster: NextPage = () => {
 							selector: (row) => {
 								let attending = AttendingGuest.safeParse(row);
 								return attending.success ? attending.data.message ?? "" : "-";
+							},
+							grow: 5,
+							wrap: true,
+							sortable: true,
+						},
+						{
+							name: "Skapad",
+							sortField: "created_at",
+							selector: (row) => {
+								let date = row.created_at ? parseJSON(row.created_at) : undefined;
+								return date ? format(date, "yyyy-MM-dd HH:mm") : "-";
 							},
 							sortable: true,
 						},
