@@ -16,6 +16,8 @@ const Gaster: NextPage = () => {
 		[filterValue, data],
 	);
 
+	console.log("data", data);
+
 	return (
 		<section className="bg-white">
 			<header className="mb-8">

@@ -7,7 +7,7 @@ export const AbsenteeGuest = z.object({
 	lastName: z.string({ required_error: "Obligatorisk" }).trim().min(1, "Obligatorisk"),
 	rsvp: z.literal(false),
 	message: z.string().optional(),
-	created_at: z.date().optional(),
+	created_at: z.string().optional().or(z.date().optional()),
 });
 
 export const AttendingGuest = AbsenteeGuest.merge(

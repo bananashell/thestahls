@@ -3,7 +3,7 @@ import { getDocs, addDoc, Timestamp } from "firebase/firestore/lite";
 import { AbsenteeGuest, AttendingGuest } from "models/guest";
 import { db, guestCollection, listGuests } from "server/fireClient";
 import { z, TypeOf } from "zod";
-import { compareDesc } from "date-fns";
+import { compareDesc, parseJSON } from "date-fns";
 
 type GuestBase = {
 	id: number;
@@ -24,9 +24,20 @@ export const guests = trpc
 				return guest;
 			});
 
-			return guests.sort((a, b) =>
-				compareDesc(a.created_at ?? EPOCH_DATE, b.created_at ?? EPOCH_DATE),
-			);
+			let sortedGuests = guests.sort((a, b) => {
+				let aDate =
+					typeof a.created_at === "string"
+						? parseJSON(a.created_at)
+						: a.created_at ?? EPOCH_DATE;
+				let bDate =
+					typeof b.created_at === "string"
+						? parseJSON(b.created_at)
+						: b.created_at ?? EPOCH_DATE;
+
+				return compareDesc(aDate, bDate);
+			});
+
+			return sortedGuests;
 		},
 	})
 	.mutation("create.absentee", {
